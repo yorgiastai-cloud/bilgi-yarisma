@@ -1,23 +1,20 @@
 import streamlit as st
 import time
 
-st.set_page_config(page_title="MLM Tarihi Yarışması", layout="centered")
+st.set_page_config(page_title="Sosyalist Teori ve Devrim Tarihi Yarışması", layout="centered")
 
-# Ekstra hiçbir kütüphane istemeyen, sunucu seviyesinde ortak canlı hafıza
-@st.cache_data(ttl="2s")  # Skor tablosunu 2 saniyede bir canlı yeniler
+# Modern Streamlit sürümleriyle tam uyumlu, sunucu seviyesinde ortak canlı hafıza
+@st.cache_resource
 def get_liderlik_tablosu():
-    if 'global_skorlar' not in st.experimental_singleton:
-        st.experimental_singleton['global_skorlar'] = {}
-    return st.experimental_singleton['global_skorlar']
+    return {}  # Tüm kullanıcılar için ortak bir skor sözlüğü oluşturur
+
+global_skorlar = get_liderlik_tablosu()
 
 def skor_ekle(isim, puan):
-    if 'global_skorlar' not in st.experimental_singleton:
-        st.experimental_singleton['global_skorlar'] = {}
-    
-    # Eğer aynı isim varsa ve yeni puan daha yüksekse güncelle
-    mevcut = st.experimental_singleton['global_skorlar'].get(isim, 0)
-    if puan > mevcut:
-        st.experimental_singleton['global_skorlar'][isim] = puan
+    # Eğer aynı isim daha önce kaydedilmişse, sadece daha yüksek olan skoru sakla
+    mevcut_puan = global_skorlar.get(isim, 0)
+    if puan > mevcut_puan:
+        global_skorlar[isim] = puan
 
 # 15 Kavramsal ve Tarihsel Soru Paketi
 sorular = [
@@ -38,13 +35,11 @@ sorular = [
     {"soru": "Çin Devrimi'nde ilan edilen, emperyalizme ve feodalizme karşı işçi, köylü, küçük burjuvazi ve ulusal burjuvazinin ittifakına dayanan devlet modeline ne ad verilir?", "cevaplar": ["Yeni Demokrasi", "Proletarya Diktatörlüğü", "Halk Cumhuriyeti", "Sosyalist Blok"], "dogru": "Yeni Demokrasi"}
 ]
 
+# Kullanıcı oturum hafızası
 if 'puan' not in st.session_state: 
     st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': '', 'start_time': 0, 'skor_kaydedildi': False})
 
-if 'global_skorlar' not in st.experimental_singleton:
-    st.experimental_singleton['global_skorlar'] = {}
-
-st.title("☭ MLM Tarihi Yarışması")
+st.title("☭ Teori ve Devrim Tarihi Yarışması")
 
 # 1. GİRİŞ EKRANI
 if not st.session_state.oyun_basladi:
@@ -60,12 +55,13 @@ if not st.session_state.oyun_basladi:
     
     st.subheader("🏅 En Yüksek Skorlar (Canlı)")
     try:
-        skorlar_dict = st.experimental_singleton['global_skorlar']
-        if skorlar_dict:
-            sirali_skorlar = sorted(skorlar_dict.items(), key=lambda x: int(x[1]), reverse=True)
+        if global_skorlar:
+            # Skorları yüksekten düşüğe doğru sırala
+            sirali_skorlar = sorted(global_skorlar.items(), key=lambda x: int(x[1]), reverse=True)
             for k, v in sirali_skorlar[:5]:
                 st.write(f"🌟 {k} — {v} Puan")
-        else: st.write("Henüz skor yok!")
+        else:
+            st.write("Henüz skor yok, ilk sen ol!")
     except:
         st.write("Skor tablosu yükleniyor...")
 
@@ -113,7 +109,7 @@ else:
             if st.button("🏆 Skorumu Liderlik Tablosuna Kaydet", key="btn_skor_kaydet"):
                 skor_ekle(st.session_state.isim, st.session_state.puan)
                 st.session_state.skor_kaydedildi = True
-                st.success("Skorun başarıyla kaydedildi!")
+                st.success("Skorun başarıyla sisteme kaydedildi!")
                 st.balloons()
                 time.sleep(1)
                 st.rerun()
