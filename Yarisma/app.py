@@ -1,56 +1,69 @@
 import streamlit as st
 import time
 
-st.set_page_config(page_title="Sosyalist Teori Yarışması", layout="centered")
+st.set_page_config(page_title="Sosyalist Tarih Yarışması", layout="centered")
 
-# 10 Sosyalizm Temalı Soru
 sorular = [
-    {"soru": "Karl Marx ve Friedrich Engels'in 'tarihin motoru' olarak tanımladığı kavram nedir?", "cevaplar": ["Teknoloji", "Sınıf Mücadelesi", "Eğitim", "Din"], "dogru": "Sınıf Mücadelesi"},
-    {"soru": "Ütopyacı sosyalizmin öncülerinden olan ve 'Yeni bir dünya düzeni' kavramını geliştiren İngiliz sanayici kimdir?", "cevaplar": ["Robert Owen", "Charles Fourier", "Henri de Saint-Simon", "Thomas More"], "dogru": "Robert Owen"},
-    {"soru": "Kapitalizmde üretilen metaların kullanım değeri ile değişim değeri arasındaki fark ne olarak adlandırılır?", "cevaplar": ["Kar", "Artı Değer", "Faiz", "Maliyet"], "dogru": "Artı Değer"},
-    {"soru": "Rus Devrimi'nin lideri Lenin'in, emperyalizmi nasıl tanımladığı eseri hangisidir?", "cevaplar": ["Devlet ve Devrim", "Nisan Tezleri", "Emperyalizm: Kapitalizmin En Yüksek Aşaması", "Ne Yapmalı?"], "dogru": "Emperyalizm: Kapitalizmin En Yüksek Aşaması"},
-    {"soru": "Rosa Luxemburg'un savunduğu, reformizm ve devrim ikilemi üzerine yazdığı ünlü eser nedir?", "cevaplar": ["Reform veya Devrim", "Sermaye Birikimi", "İşçi Hareketi", "Spartaküs"], "dogru": "Reform veya Devrim"},
-    {"soru": "Toplumsal üretim araçlarının mülkiyetinin devlet elinde toplandığı, geçiş dönemi sistemi nedir?", "cevaplar": ["Liberalizm", "Anarşizm", "Sosyalizm", "Feodalizm"], "dogru": "Sosyalizm"},
-    {"soru": "Antonio Gramsci'nin egemen sınıfın kültürel hakimiyetini kurma biçimi olarak tanımladığı kavram nedir?", "cevaplar": ["Otorite", "Hegemonya", "Baskı", "Propaganda"], "dogru": "Hegemonya"},
-    {"soru": "1917 Ekim Devrimi gerçekleştiğinde Rusya'da iktidarda olan geçici hükümetin lideri kimdi?", "cevaplar": ["Kerenski", "Troçki", "Stalin", "Çar II. Nikola"], "dogru": "Kerenski"},
-    {"soru": "Tarihsel Materyalizm'e göre toplumun hukuki ve siyasi yapısını belirleyen temel unsur nedir?", "cevaplar": ["Düşünceler", "Üretim Tarzı", "Coğrafya", "Kültür"], "dogru": "Üretim Tarzı"},
-    {"soru": "Jean-Jacques Rousseau'nun sosyalizm fikirlerini etkileyen ünlü eseri hangisidir?", "cevaplar": ["Toplum Sözleşmesi", "İtiraflar", "Emile", "Söylev"], "dogru": "Toplum Sözleşmesi"}
+    {"soru": "Karl Marx hangi şehirde doğmuştur?", "cevaplar": ["Berlin", "Trier", "Londra", "Paris"], "dogru": "Trier"},
+    {"soru": "Friedrich Engels, Marx'ın hangi eserinin bitirilmesine büyük katkı sağlamıştır?", "cevaplar": ["Kapital", "Manifesto", "Grundrisse", "18. Brumaire"], "dogru": "Kapital"},
+    {"soru": "Lenin, 1917 devrimi öncesi sürgünden Rusya'ya hangi araçla dönmüştür?", "cevaplar": ["Gemi", "Mühürlü Tren", "Uçak", "At Arabası"], "dogru": "Mühürlü Tren"},
+    {"soru": "Stalin'in asıl adı nedir?", "cevaplar": ["Lev Troçki", "İosif Cuğaşvili", "Nikolay Buharin", "Sergey Kirov"], "dogru": "İosif Cuğaşvili"},
+    {"soru": "Mao Zedong'un 1934-1935 yılları arasında önderlik ettiği meşhur geri çekilme harekâtı nedir?", "cevaplar": ["Büyük Yürüyüş", "Kültür Devrimi", "İleri Atılım", "Kızıl Ordu Seferi"], "dogru": "Büyük Yürüyüş"},
+    {"soru": "Marx'ın hayatının büyük bir kısmını geçirdiği ve 'Kapital'i yazdığı kütüphane hangi şehirdedir?", "cevaplar": ["Paris", "Londra", "Berlin", "Brüksel"], "dogru": "Londra"},
+    {"soru": "Lenin'in kurduğu ve Sovyetler Birliği'nin temelini atan parti hangisidir?", "cevaplar": ["Menşevik", "Bolşevik", "Sosyalist Devrimci", "Anarşist"], "dogru": "Bolşevik"},
+    {"soru": "Stalin, gençliğinde hangi meslek için eğitim alıyordu?", "cevaplar": ["Demircilik", "Ruhbanlık", "Askerlik", "Terzilik"], "dogru": "Ruhbanlık"},
+    {"soru": "Mao Zedong, hangi siyasi doktrinin Çin şartlarına uyarlanmış halini geliştirmiştir?", "cevaplar": ["Troçkizm", "Marksizm-Leninizm", "Anarko-Komünizm", "Sosyal Demokrasi"], "dogru": "Marksizm-Leninizm"},
+    {"soru": "Engels, Manchester'da ne iş yapıyordu?", "cevaplar": ["Gazetecilik", "Fabrika Yöneticiliği", "Hukukçuluk", "Tıp"], "dogru": "Fabrika Yöneticiliği"},
+    {"soru": "Lenin'in eşi ve en yakın çalışma arkadaşı kimdir?", "cevaplar": ["Rosa Luxemburg", "Nadejda Krupskaya", "Aleksandra Kollontay", "Inessa Armand"], "dogru": "Nadejda Krupskaya"},
+    {"soru": "Stalin, hangi savaş sırasında 'Başkomutan' sıfatıyla ordunun başındaydı?", "cevaplar": ["I. Dünya Savaşı", "İç Savaş", "II. Dünya Savaşı", "Kore Savaşı"], "dogru": "II. Dünya Savaşı"},
+    {"soru": "Marx'ın mezarı hangi şehirdedir?", "cevaplar": ["Trier", "Berlin", "Londra", "Paris"], "dogru": "Londra"},
+    {"soru": "Mao Zedong'un ünlü 'Küçük Kırmızı Kitap'ı hangi dönemde yaygınlaşmıştır?", "cevaplar": ["Uzun Yürüyüş", "Kültür Devrimi", "İç Savaş", "Devrim Öncesi"], "dogru": "Kültür Devrimi"},
+    {"soru": "Friedrich Engels'in 'İngiltere'de İşçi Sınıfının Durumu' adlı eseri hangi şehri anlatır?", "cevaplar": ["Londra", "Manchester", "Liverpool", "Birmingham"], "dogru": "Manchester"}
 ]
 
-# Değişkenleri başlat
-if 'puan' not in st.session_state: st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': ''})
+if 'puan' not in st.session_state: 
+    st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': '', 'start_time': 0})
 
-st.title("☭ Sosyalist Teori Bilgi Yarışması")
+st.title("☭ Sosyalist Tarih Bilgi Yarışması")
 
 if not st.session_state.oyun_basladi:
     isim = st.text_input("Yoldaş Adı:")
-    if st.button("🚀 Mücadeleyi Başlat"):
+    if st.button("🚀 Mücadeleye Başla"):
         if isim:
             st.session_state.isim = isim
             st.session_state.oyun_basladi = True
             st.rerun()
-        else: st.warning("İsmini gir yoldaş!")
-    
-    st.subheader("🏅 Liderlik Tablosu")
-    try:
-        with open("skorlar.txt", "r") as f:
-            skorlar = f.readlines()
-            for s in sorted(skorlar, key=lambda x: int(x.split('-')[1].strip()), reverse=True)[:5]:
-                st.write(s.strip())
-    except: st.write("Tablo boş, ilk sen doldur!")
-
-elif st.session_state.soru_index < len(sorular):
-    q = sorular[st.session_state.soru_index]
-    st.subheader(f"Soru {st.session_state.soru_index + 1}: {q['soru']}")
-    for secenek in q['cevaplar']:
-        if st.button(secenek):
-            if secenek == q['dogru']: st.session_state.puan += 1
-            st.session_state.soru_index += 1
-            st.rerun()
 else:
-    st.write(f"Oyun bitti {st.session_state.isim}! Skorun: {st.session_state.puan}")
-    with open("skorlar.txt", "a") as f:
-        f.write(f"{st.session_state.isim} - {st.session_state.puan}\n")
-    if st.button("Tekrar Oyna"):
-        st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False})
+    if st.session_state.soru_index < len(sorular):
+        q = sorular[st.session_state.soru_index]
+        st.subheader(f"Soru {st.session_state.soru_index + 1}: {q['soru']}")
+        
+        st.session_state.start_time = time.time()
+        for secenek in q['cevaplar']:
+            if st.button(secenek):
+                gecen_sure = time.time() - st.session_state.start_time
+                if secenek == q['dogru']:
+                    puan = 1
+                    if gecen_sure < 3:
+                        puan += 1
+                        st.success("✅ Doğru! +1 Hız Bonusu!")
+                    else: st.success("✅ Doğru!")
+                    st.session_state.puan += puan
+                else: st.error(f"❌ Yanlış! Doğrusu: {q['dogru']}")
+                
+                time.sleep(1.5)
+                st.session_state.soru_index += 1
+                st.rerun()
+        
+        # 10 saniye sınırı (Görsel uyarı)
+        st.warning("⏱️ 10 Saniye içinde cevapla!")
+        time.sleep(10)
+        st.error("⏳ Süre doldu!")
+        st.session_state.soru_index += 1
         st.rerun()
+    else:
+        st.write(f"Oyun bitti {st.session_state.isim}! Toplam Skor: {st.session_state.puan}")
+        if st.button("🏆 Skorunu Kaydet"):
+            with open("skorlar.txt", "a") as f:
+                f.write(f"{st.session_state.isim} - {st.session_state.puan}\n")
+            st.success("Kaydedildi!")
