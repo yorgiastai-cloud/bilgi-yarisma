@@ -1,9 +1,14 @@
 import streamlit as st
 import time
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
 
 st.set_page_config(page_title="Sosyalist Teori Yarışması", layout="centered")
 
-# 15 Yeni Kavramsal Soru Paketi
+# Google Sheets Bağlantısı (Ayarları Streamlit Cloud panelinden alacak)
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# 15 Kavramsal Soru Paketi
 sorular = [
     {"soru": "Karl Marx ve Friedrich Engels'in 'tarihin motoru' olarak tanımladığı kavram nedir?", "cevaplar": ["Teknoloji", "Sınıf Mücadelesi", "Eğitim", "Din"], "dogru": "Sınıf Mücadelesi"},
     {"soru": "Kapitalizmde üretilen metaların kullanım değeri ile değişim değeri arasındaki fark ne olarak adlandırılır?", "cevaplar": ["Kar", "Artı Değer", "Faiz", "Maliyet"], "dogru": "Artı Değer"},
@@ -22,7 +27,6 @@ sorular = [
     {"soru": "Lenin'in 'Devlet ve Devrim' eserinde de vurguladığı, devletin tarafsız bir hakem değil, belirli bir sınıfın diğer sınıf üzerindeki ne aracı olduğunu savunur?", "cevaplar": ["Uzlaşma", "Baskı ve Tahakküm", "Hizmet", "Eğitim"], "dogru": "Baskı ve Tahakküm"}
 ]
 
-# Session State Yönetimi
 if 'puan' not in st.session_state: 
     st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': '', 'start_time': 0, 'skor_kaydedildi': False})
 
@@ -30,7 +34,6 @@ st.title("☭ Sosyalist Teori Bilgi Yarışması")
 
 # 1. GİRİŞ EKRANI
 if not st.session_state.oyun_basladi:
-    # Çakışmayı önlemek için benzersiz bir key ekledik
     isim = st.text_input("Yoldaş Adı:", key="giris_yoldas_adi")
     if st.button("🚀 Mücadeleye Başla", key="but_basla"):
         if isim:
@@ -39,18 +42,20 @@ if not st.session_state.oyun_basladi:
             st.session_state.start_time = time.time()
             st.session_state.skor_kaydedildi = False
             st.rerun()
-        else: 
-            st.warning("Lütfen bir isim gir yoldaş!")
+        else: st.warning("Lütfen bir isim gir yoldaş!")
     
-    st.subheader("🏅 En Yüksek Skorlar")
+    st.subheader("🏅 En Yüksek Skorlar (Canlı)")
     try:
-        with open("skorlar.txt", "r") as f:
-            skorlar = f.readlines()
-            sirali_skorlar = sorted(skorlar, key=lambda x: int(x.split('-')[1].strip()), reverse=True)
-            for s in sirali_skorlar[:5]:
-                st.write(s.strip())
+        # Verileri Google Sheets'ten canlı oku
+        df = conn.read(ttl="5s") # 5 saniyede bir güncellenir
+        if not df.empty:
+            df['Puan'] = pd.to_numeric(df['Puan'])
+            sirali_df = df.sort_values(by="Puan", ascending=False)
+            for index, row in sirali_df.head(5).iterrows():
+                st.write(f"{row['İsim']} - {int(row['Puan'])}")
+        else: st.write("Henüz skor yok!")
     except: 
-        st.write("Henüz kaydedilmiş skor yok, ilk sen ol!")
+        st.write("Skor tablosu yükleniyor veya henüz veri yok...")
 
 # 2. SORU EKRANI
 else:
@@ -63,26 +68,21 @@ else:
         
         if kalan_sure > 0:
             st.metric("⏳ Kalan Süre", f"{kalan_sure} sn")
-            
             for secenek in q['cevaplar']:
-                # Hatanın ana sebebi olan şık butonlarına benzersiz döngü ID'leri tanımlandı
                 if st.button(secenek, key=f"btn_{secenek}_{st.session_state.soru_index}"):
                     if secenek == q['dogru']:
                         taban_puan = 10
                         if gecen_sure < 3:
                             taban_puan += 5
                             st.success("✅ Harika! 15 Puan (10 Doğru + 5 Hız Bonusu)")
-                        else: 
-                            st.success("✅ Doğru! 10 Puan")
+                        else: st.success("✅ Doğru! 10 Puan")
                         st.session_state.puan += taban_puan
-                    else: 
-                        st.error(f"❌ Yanlış! Doğrusu: {q['dogru']}")
+                    else: st.error(f"❌ Yanlış! Doğrusu: {q['dogru']}")
                     
                     time.sleep(1.5)
                     st.session_state.soru_index += 1
                     st.session_state.start_time = time.time()
                     st.rerun()
-            
             time.sleep(0.1)
             st.rerun()
         else:
@@ -99,15 +99,21 @@ else:
         
         if not st.session_state.skor_kaydedildi:
             if st.button("🏆 Skorumu Liderlik Tablosuna Kaydet", key="btn_skor_kaydet"):
-                with open("skorlar.txt", "a") as f:
-                    f.write(f"{st.session_state.isim} - {st.session_state.puan}\n")
-                st.session_state.skor_kaydedildi = True
-                st.success("Skorun başarıyla kaydedildi!")
-                st.balloons()
-                time.sleep(1)
-                st.rerun()
-        else:
-            st.info("Skorun zaten kaydedildi yoldaş!")
+                try:
+                    # Mevcut veriyi çek, yeni skoru ekle ve geri yükle
+                    df = conn.read(ttl="0s")
+                    new_row = pd.DataFrame([{"İsim": st.session_state.isim, "Puan": st.session_state.puan}])
+                    updated_df = pd.concat([df, new_row], ignore_index=True)
+                    conn.update(data=updated_df)
+                    
+                    st.session_state.skor_kaydedildi = True
+                    st.success("Skorun başarıyla Google Sheets'e kaydedildi!")
+                    st.balloons()
+                    time.sleep(1)
+                    st.rerun()
+                except Exception as e:
+                    st.error("Kayıt sırasında bir hata oluştu, lütfen ayarlara bağlantı linkini eklediğinizden emin olun.")
+        else: st.info("Skorun zaten kaydedildi yoldaş!")
 
         if st.button("🔄 Yeniden Oyna", key="btn_tekrar_oyna"):
             st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'skor_kaydedildi': False})
