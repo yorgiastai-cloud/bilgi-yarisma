@@ -3,11 +3,21 @@ import time
 
 st.set_page_config(page_title="MLM Tarihi Yarışması", layout="centered")
 
-# Streamlit'in kendi yerleşik bulut veritabanına bağlanıyoruz
-try:
-    conn = st.connection("kv", type="st_kv_connection.KVConnection")
-except:
-    conn = None
+# Ekstra hiçbir kütüphane istemeyen, sunucu seviyesinde ortak canlı hafıza
+@st.cache_data(ttl="2s")  # Skor tablosunu 2 saniyede bir canlı yeniler
+def get_liderlik_tablosu():
+    if 'global_skorlar' not in st.experimental_singleton:
+        st.experimental_singleton['global_skorlar'] = {}
+    return st.experimental_singleton['global_skorlar']
+
+def skor_ekle(isim, puan):
+    if 'global_skorlar' not in st.experimental_singleton:
+        st.experimental_singleton['global_skorlar'] = {}
+    
+    # Eğer aynı isim varsa ve yeni puan daha yüksekse güncelle
+    mevcut = st.experimental_singleton['global_skorlar'].get(isim, 0)
+    if puan > mevcut:
+        st.experimental_singleton['global_skorlar'][isim] = puan
 
 # 15 Kavramsal ve Tarihsel Soru Paketi
 sorular = [
@@ -17,7 +27,7 @@ sorular = [
     {"soru": "Ekim Devrimi'nin hemen ardından, devrimi ve Sovyet iktidarını korumak amacıyla kurulan gizli siyasi polis teşkilatı hangisidir?", "cevaplar": ["KGB", "Çeka", "NKVD", "Gruman"], "dogru": "Çeka"},
     {"soru": "Mao Zedong'un, sosyalist inşa sürecinde toplumdaki çelişkilerin barışçıl ve tartışma yoluyla çözülmesi gerektiğini savunduğu ünlü kampanyasının adı nedir?", "cevaplar": ["Yüz Çiçek Açsın", "Büyük İleri Atılım", "Kültür Devrimi", "Kızıl Bayrak"], "dogru": "Yüz Çiçek Açsın"},
     {"soru": "Marksizm-Leninizm'de, partinin kararlar alınırken tam bir tartışma özgürlüğü, karar alındıktan sonra ise tam bir eylem birliği içinde hareket etmesini öngören ilke nedir?", "cevaplar": ["Bürokratizm", "Demokratik Merkeziyetçilik", "Fraksiyonizm", "Kolektif Önderlik"], "dogru": "Demokratik Merkeziyetçilik"},
-    {"soru": "Çin Devrimi süreçinde, sanayileşmiş bir işçi sınıfının azınlıkta olması nedeniyle Mao'nun devrimin temel gücü olarak konumlandırdığı sınıf hangisidir?", "cevaplar": ["Köylülük", "Komprador Burjuvazi", "Küçük Burjuvazi", "Lumpen Proletarya"], "dogru": "Köylülük"},
+    {"soru": "Çin Devrimi sürecinde, sanayileşmiş bir işçi sınıfının azınlıkta olması nedeniyle Mao'nun devrimin temel gücü olarak konumlandırdığı sınıf hangisidir?", "cevaplar": ["Köylülük", "Komprador Burjuvazi", "Küçük Burjuvazi", "Lumpen Proletarya"], "dogru": "Köylülük"},
     {"soru": "Ekim Devrimi'ni fiilen organize eden, Askeri Devrimci Komite'nin başında yer alan ve Kızıl Ordu'nun kurucusu olan lider kimdir?", "cevaplar": ["Stalin", "Troçki", "Buharin", "Kamenev"], "dogru": "Troçki"},
     {"soru": "Maoizmde, bir toplumdaki temel çelişkinin yanı sıra, o anki tarihsel aşamada devrimin önündeki en büyük engeli oluşturan çelişki türüne ne ad verilir?", "cevaplar": ["Baş Çelişki", "Antagonistik Çelişki", "İkincil Çelişki", "İç Çelişki"], "dogru": "Baş Çelişki"},
     {"soru": "Ekim Devrimi öncesinde, Temmuz Günleri'nin ardından Lenin'in saklandığı kulübede yazdığı, devletin sönümlenmesi teorisini ele alan başyapıtı hangisidir?", "cevaplar": ["Emperyalizm", "Devlet ve Devrim", "Ne Yapmalı?", "Marx Üzerine"], "dogru": "Devlet ve Devrim"},
@@ -31,7 +41,10 @@ sorular = [
 if 'puan' not in st.session_state: 
     st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': '', 'start_time': 0, 'skor_kaydedildi': False})
 
-st.title("☭ Teori ve Devrim Tarihi Yarışması")
+if 'global_skorlar' not in st.experimental_singleton:
+    st.experimental_singleton['global_skorlar'] = {}
+
+st.title("☭ MLM Tarihi Yarışması")
 
 # 1. GİRİŞ EKRANI
 if not st.session_state.oyun_basladi:
@@ -47,17 +60,13 @@ if not st.session_state.oyun_basladi:
     
     st.subheader("🏅 En Yüksek Skorlar (Canlı)")
     try:
-        # Buluttan skorları çek ve sırala
-        if conn:
-            skorlar_dict = conn.get_all()
-            if skorlar_dict:
-                # Skorları integer'a çevirip yüksekten düşüğe sıralama
-                sirali_skorlar = sorted(skorlar_dict.items(), key=lambda x: int(x[1]), reverse=True)
-                for k, v in sirali_skorlar[:5]:
-                    st.write(f"🌟 {k} — {v} Puan")
-            else: st.write("Henüz skor yok!")
-        else: st.write("Veritabanı bağlantısı kurulamadı.")
-    except: 
+        skorlar_dict = st.experimental_singleton['global_skorlar']
+        if skorlar_dict:
+            sirali_skorlar = sorted(skorlar_dict.items(), key=lambda x: int(x[1]), reverse=True)
+            for k, v in sirali_skorlar[:5]:
+                st.write(f"🌟 {k} — {v} Puan")
+        else: st.write("Henüz skor yok!")
+    except:
         st.write("Skor tablosu yükleniyor...")
 
 # 2. SORU EKRANI
@@ -102,22 +111,12 @@ else:
         
         if not st.session_state.skor_kaydedildi:
             if st.button("🏆 Skorumu Liderlik Tablosuna Kaydet", key="btn_skor_kaydet"):
-                try:
-                    if conn:
-                        # Eğer aynı isim daha önce kayıtlıysa ve yeni skoru eskisinden yüksekse güncelle
-                        mevcut_en_iyi = conn.get(st.session_state.isim)
-                        if mevcut_en_iyi is None or st.session_state.puan > int(mevcut_en_iyi):
-                            conn.set(st.session_state.isim, str(st.session_state.puan))
-                        
-                        st.session_state.skor_kaydedildi = True
-                        st.success("Skorun başarıyla bulut liderlik tablosuna kaydedildi!")
-                        st.balloons()
-                        time.sleep(1)
-                        st.rerun()
-                    else:
-                        st.error("Veritabanı bağlantı hatası.")
-                except Exception as e:
-                    st.error("Kayıt sırasında bir hata oluştu.")
+                skor_ekle(st.session_state.isim, st.session_state.puan)
+                st.session_state.skor_kaydedildi = True
+                st.success("Skorun başarıyla kaydedildi!")
+                st.balloons()
+                time.sleep(1)
+                st.rerun()
         else: st.info("Skorun zaten kaydedildi yoldaş!")
 
         if st.button("🔄 Yeniden Oyna", key="btn_tekrar_oyna"):
