@@ -4,16 +4,16 @@ import time
 st.set_page_config(page_title="Hızlı Yarışma", layout="centered")
 
 sorular = [
-    {"soru": "Dünyanın en büyük okyanusu hangisidir?", "cevaplar": ["Atlantik", "Hint", "Pasifik", "Arktik"], "dogru": "Pasifik"},
-    {"soru": "Periyodik tabloda 'O' harfi hangi elementi simgeler?", "cevaplar": ["Altın", "Oksijen", "Osmiyum", "Gümüş"], "dogru": "Oksijen"},
-    {"soru": "Shakespeare'in yazdığı ünlü oyun hangisidir?", "cevaplar": ["Sefiller", "Hamlet", "İlahi Komedya", "Suç ve Ceza"], "dogru": "Hamlet"},
-    {"soru": "Eyfel Kulesi hangi şehirde yer alır?", "cevaplar": ["Londra", "Berlin", "Paris", "Roma"], "dogru": "Paris"},
-    {"soru": "Güneş sistemindeki en büyük gezegen hangisidir?", "cevaplar": ["Satürn", "Mars", "Jüpiter", "Dünya"], "dogru": "Jüpiter"},
-    {"soru": "Türkiye Cumhuriyeti hangi yıl ilan edilmiştir?", "cevaplar": ["1920", "1923", "1925", "1930"], "dogru": "1923"},
-    {"soru": "Hangi ülkenin bayrağında bir akçaağaç yaprağı bulunur?", "cevaplar": ["ABD", "Kanada", "Avustralya", "Yeni Zelanda"], "dogru": "Kanada"},
-    {"soru": "Nobel Ödülleri hangi şehirde verilmektedir?", "cevaplar": ["Oslo", "Stockholm", "Cenevre", "Viyana"], "dogru": "Stockholm"},
-    {"soru": "'Habeas Corpus' hangi hukuk terimiyle ilişkilidir?", "cevaplar": ["Kişi özgürlüğü", "Mülkiyet hakkı", "Savaş suçu", "Vergi yasası"], "dogru": "Kişi özgürlüğü"},
-    {"soru": "Işık hızı saniyede yaklaşık kaç kilometredir?", "cevaplar": ["100.000", "200.000", "300.000", "400.000"], "dogru": "300.000"}
+    {"soru": "Dünyanın en derin noktası olan Mariana Çukuru hangi okyanustadır?", "cevaplar": ["Atlantik", "Pasifik", "Hint", "Arktik"], "dogru": "Pasifik"},
+    {"soru": "Tarihteki ilk yazılı kanunlar olan Hammurabi Kanunları hangi uygarlığa aittir?", "cevaplar": ["Sümer", "Babil", "Asur", "Akad"], "dogru": "Babil"},
+    {"soru": "Güneş sistemimizde kendi etrafında ters yönde dönen tek gezegen hangisidir?", "cevaplar": ["Mars", "Venüs", "Jüpiter", "Satürn"], "dogru": "Venüs"},
+    {"soru": "Fransız Devrimi'nin temel sloganı olan 'Özgürlük, Eşitlik, Kardeşlik' hangi dildedir?", "cevaplar": ["Latince", "Fransızca", "İtalyanca", "İspanyolca"], "dogru": "Fransızca"},
+    {"soru": "Ünlü düşünür Karl Marx'ın Friedrich Engels ile birlikte yazdığı eser nedir?", "cevaplar": ["Kapital", "Komünist Manifesto", "İdeoloji", "Proletarya"], "dogru": "Komünist Manifesto"},
+    {"soru": "Hangi elementin simgesi 'Au'dur?", "cevaplar": ["Gümüş", "Bakır", "Altın", "Alüminyum"], "dogru": "Altın"},
+    {"soru": "Dünya üzerindeki en uzun dağ silsilesi hangisidir?", "cevaplar": ["Himalayalar", "And Dağları", "Alpler", "Kafkaslar"], "dogru": "And Dağları"},
+    {"soru": "Modern bilgisayar biliminin babası kabul edilen ve İkinci Dünya Savaşı'nda Enigma kodlarını kıran kişi kimdir?", "cevaplar": ["Alan Turing", "Ada Lovelace", "Bill Gates", "Steve Jobs"], "dogru": "Alan Turing"},
+    {"soru": "Hangi ülke hem Asya hem de Avrupa kıtasında toprağa sahiptir?", "cevaplar": ["Yunanistan", "Türkiye", "İspanya", "İtalya"], "dogru": "Türkiye"},
+    {"soru": "Dünya Sağlık Örgütü (WHO) merkezi nerededir?", "cevaplar": ["New York", "Cenevre", "Brüksel", "Viyana"], "dogru": "Cenevre"}
 ]
 
 if 'puan' not in st.session_state: 
