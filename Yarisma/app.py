@@ -22,7 +22,7 @@ sorular = [
 ]
 
 if 'puan' not in st.session_state: 
-    st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': '', 'start_time': 0})
+    st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': '', 'soru_baslangic': 0})
 
 st.title("☭ Sosyalist Tarih Bilgi Yarışması")
 
@@ -32,38 +32,56 @@ if not st.session_state.oyun_basladi:
         if isim:
             st.session_state.isim = isim
             st.session_state.oyun_basladi = True
+            st.session_state.soru_baslangic = time.time()
             st.rerun()
 else:
     if st.session_state.soru_index < len(sorular):
         q = sorular[st.session_state.soru_index]
-        st.subheader(f"Soru {st.session_state.soru_index + 1}: {q['soru']}")
         
-        st.session_state.start_time = time.time()
+        # Süre hesaplama
+        gecen_sure = time.time() - st.session_state.soru_baslangic
+        kalan_sure = int(10 - gecen_sure)
+        
+        if kalan_sure <= 0:
+            st.error("⏳ Süre doldu!")
+            time.sleep(1)
+            st.session_state.soru_index += 1
+            st.session_state.soru_baslangic = time.time()
+            st.rerun()
+        
+        st.subheader(f"Soru {st.session_state.soru_index + 1}: {q['soru']}")
+        st.warning(f"⏱️ Kalan Süre: **{kalan_sure}** saniye")
+        
         for secenek in q['cevaplar']:
             if st.button(secenek):
-                gecen_sure = time.time() - st.session_state.start_time
+                cevap_suresi = gecen_sure
                 if secenek == q['dogru']:
                     puan = 1
-                    if gecen_sure < 3:
+                    if cevap_suresi < 3:
                         puan += 1
                         st.success("✅ Doğru! +1 Hız Bonusu!")
-                    else: st.success("✅ Doğru!")
+                    else: 
+                        st.success("✅ Doğru!")
                     st.session_state.puan += puan
-                else: st.error(f"❌ Yanlış! Doğrusu: {q['dogru']}")
+                else: 
+                    st.error(f"❌ Yanlış! Doğrusu: {q['dogru']}")
                 
-                time.sleep(1.5)
+                time.sleep(1.2)
                 st.session_state.soru_index += 1
+                st.session_state.soru_baslangic = time.time()
                 st.rerun()
         
-        # 10 saniye sınırı (Görsel uyarı)
-        st.warning("⏱️ 10 Saniye içinde cevapla!")
-        time.sleep(10)
-        st.error("⏳ Süre doldu!")
-        st.session_state.soru_index += 1
+        # Her saniye akışı tetiklemek için ufak bir gecikme ve yenileme
+        time.sleep(1)
         st.rerun()
+        
     else:
         st.write(f"Oyun bitti {st.session_state.isim}! Toplam Skor: {st.session_state.puan}")
         if st.button("🏆 Skorunu Kaydet"):
             with open("skorlar.txt", "a") as f:
                 f.write(f"{st.session_state.isim} - {st.session_state.puan}\n")
             st.success("Kaydedildi!")
+        
+        if st.button("Tekrar Oyna"):
+            st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'soru_baslangic': time.time()})
+            st.rerun()
