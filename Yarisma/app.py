@@ -2,7 +2,7 @@ import streamlit as st
 import time
 import random
 
-st.set_page_config(page_title="MLM Tarihi Yarışması", layout="centered")
+st.set_page_config(page_title="MLM Devrim Tarihi Yarışması", layout="centered")
 
 @st.cache_resource
 def get_liderlik_tablosu():
@@ -11,7 +11,6 @@ def get_liderlik_tablosu():
 global_skorlar = get_liderlik_tablosu()
 
 def skor_ekle(isim, puan):
-    # Eğer aynı isim daha önce kaydedilmişse, sadece daha yüksek olan skoru sakla
     mevcut_puan = global_skorlar.get(isim, 0)
     if puan > mevcut_puan:
         global_skorlar[isim] = puan
@@ -33,7 +32,7 @@ soru_havuzu = [
     {"soru": "Lenin, hangi ünlü takma adı (Lenin) kullanmadan önce gençlik yıllarında hangi nehrin adından esinlenmiştir?", "cevaplar": ["Volga", "Lena", "Don", "Dinyeper"], "dogru": "Lena"},
     {"soru": "Sovyetler Birliği'nde 1920'lerde şekillenen, dünya devrimini beklemeden öncelikle mevcut topraklarda sosyalist inşayı tamamlamayı hedefleyen tez hangisidir?", "cevaplar": ["Sürekli Devrim", "Tek Ülkede Sosyalizm", "Kalıcı Devrim", "Enternasyonalizm"], "dogru": "Tek Ülkede Sosyalizm"},
     {"soru": "Ekim Devrimi'nin ilk yıllarında (1918-1921) iç savaş koşullarında uygulanan sert ekonomik ve siyasi politikalara ne ad verilir?", "cevaplar": ["Savaş Komünizmi", "NEP", "Kolektifleştirme", "Kültür Devrimi"], "dogru": "Savaş Komünizmi"},
-    {"soru": "Lenin'in 1902 yılında yazdığı, devrimci örgüt ve profesyonel devrimciler partisi fikrini ilk kez sistematik olarak ortaya koyduğu eserin adı nedir?", "cevaplar": ["Ne Yapmalı?", "Devlet ve Devrim", "Sol Komünizm", "Emperyalizm"], "dogru": "Ne Yapmalı?"},
+    {"soru": "Lenin'in 1902 yılında yazdığı, devrimci örgüt ve profesyonel devrimciler partisi fikrini ilk kez akademik olarak ortaya koyduğu eserin adı nedir?", "cevaplar": ["Ne Yapmalı?", "Devlet ve Devrim", "Sol Komünizm", "Emperyalizm"], "dogru": "Ne Yapmalı?"},
     {"soru": "Bolşevik Partisi'nin 1903 yılındaki 2. Kongresi'nde yaşanan bölünmede Lenin'in azınlıkta kalan muhaliflerine ne ad verilmiştir?", "cevaplar": ["Menşevik", "Trudovik", "Kadret", "Eser"], "dogru": "Menşevik"},
     {"soru": "1905 Rus Devrimi'ni ateşleyen ve çarın askerlerinin silahsız işçilere ateş açtığı tarihi olaya ne ad verilir?", "cevaplar": ["Kanlı Pazar", "Temmuz Günleri", "Ekim İsyanı", "Kış Sarayı Baskını"], "dogru": "Kanlı Pazar"},
     {"soru": "1921 yılında Bolşevik iktidarına karşı isyan eden ve 'Sovyetler evet, Bolşevikler hayır' sloganını kullanan ünlü deniz üssü hangisidir?", "cevaplar": ["Kronstadt", "Sivastopol", "Odesa", "Murmansk"], "dogru": "Kronstadt"},
@@ -43,7 +42,7 @@ soru_havuzu = [
     # --- 21-40: Çin Devrimi & Maoizm ---
     {"soru": "Çin Devrimi'nin stratejik temelini oluşturan, kırlardan şehirlere doğru ilerleyen devrimci savaş stratejisine ne ad verilir?", "cevaplar": ["Topyekün Savaş", "Halk Savaşı", "Gerilla Doktrini", "Kızıl Harekat"], "dogru": "Halk Savaşı"},
     {"soru": "Mao Zedong'un, sosyalist inşa sürecinde toplumdaki çelişkilerin barışçıl ve tartışma yoluyla çözülmesi gerektiğini savunduğu ünlü kampanyasının adı nedir?", "cevaplar": ["Yüz Çiçek Açsın", "Büyük İleri Atılım", "Kültür Devrimi", "Kızıl Bayrak"], "dogru": "Yüz Çiçek Açsın"},
-    {"soru": "Çin Devrimi sürecinde, sanayileşmiş bir işçi sınıfının azınlıkta olması nedeniyle Mao'nun devrimin temel gücü olarak konumlandırdığı sınıf hangisidir?", "cevaplar": ["Köylülük", "Komprador Burjuvazi", "Küçük Burjuvazi", "Lumpen Proletarya"], "dogru": "Köylülük"},
+    {"soru": "Çin Devrimi süreçinde, sanayileşmiş bir işçi sınıfının azınlıkta olması nedeniyle Mao'nun devrimin temel gücü olarak konumlandırdığı sınıf hangisidir?", "cevaplar": ["Köylülük", "Komprador Burjuvazi", "Küçük Burjuvazi", "Lumpen Proletarya"], "dogru": "Köylülük"},
     {"soru": "Maoizmde, bir toplumdaki temel çelişkinin yanı sıra, o anki tarihsel aşamada devrimin önündeki en büyük engeli oluşturan çelişki türüne ne ad verilir?", "cevaplar": ["Baş Çelişki", "Antagonistik Çelişki", "İkincil Çelişki", "İç Çelişki"], "dogru": "Baş Çelişki"},
     {"soru": "Mao Zedong'un, Çin'in geleneksel yapısını kırıp kapitalist geri dönüşü engellemek amacıyla 1966'da başlattığı kitlesel hareketin adı nedir?", "cevaplar": ["Büyük İleri Atılım", "Büyük Proleter Kültür Devrimi", "Dörtlü Çete Hareketi", "Kızıl Muhafızlar Seferi"], "dogru": "Büyük Proleter Kültür Devrimi"},
     {"soru": "Çin Devrimi'nde ilan edilen, emperyalizme ve feodalizme karşı işçi, köylü, küçük burjuvazi ve ulusal burjuvazinin ittifakına dayanan devlet modeline ne ad verilir?", "cevaplar": ["Yeni Demokrasi", "Proletarya Diktatörlüğü", "Halk Cumhuriyeti", "Sosyalist Blok"], "dogru": "Yeni Demokrasi"},
@@ -56,7 +55,7 @@ soru_havuzu = [
     {"soru": "Mao Zedong, gençlik yıllarında Pekin Üniversitesi'nde hangi görevde çalışmıştır?", "cevaplar": ["Kütüphane Memuru", "Tarih Profesörü", "Matbaa İşçisi", "Çevirmen"], "dogru": "Kütüphane Memuru"},
     {"soru": "Maoizmde, feodalizm ve emperyalizmin boyunduruğundaki az gelişmiş ülkelerde, devlet gücünü elinde tutan büyük sermayenin devletle bütünleşmesini ifade eden kavram nedir?", "cevaplar": ["Serbest Piyasa", "Bürokratik Kapitalizm", "Devlet Sosyalizmi", "Komprador Burjuvazi"], "dogru": "Bürokratik Kapitalizm"},
     {"soru": "Çin Devrimi'nin başarıya ulaşarak Çin Halk Cumhuriyeti'nin ilan edildiği tarihi yıl hangisidir?", "cevaplar": ["1911", "1927", "1945", "1949"], "dogru": "1949"},
-    {"soru": "Çin'de Mao önderliğinde 1958-1962 yılları arasında uygulanan, hızlı sanayileşme ve kolektifleştirmeyi hedefleyen ekonomik hamle nedir?", "cevaplar": ["Büyük İleri Atılım", "Kültür Devrimi", "Dört Modernizasyon", "Halk Komünleri Hareketi"], "dogru": "Büyük İleri Atılım"},
+    {"soru": "Çin'de Mao önderliğinde 1958-1962 yılları arasında uygulanan, hızlı sanayileşme ve kolektifleştirme hamlesi nedir?", "cevaplar": ["Büyük İleri Atılım", "Kültür Devrimi", "Dört Modernizasyon", "Halk Komünleri Hareketi"], "dogru": "Büyük İleri Atılım"},
     {"soru": "Çin Devrimi sürecinde komünistlerin savaştığı, Çan Kay-şek liderliğindeki milliyetçi partinin adı nedir?", "cevaplar": ["Kuomintang", "Çin Milliyetçi Cephesi", "Kızıl Kuşak", "Ming Partisi"], "dogru": "Kuomintang"},
     {"soru": "Mao Zedong'un felsefi katkılarından biri olan, evrendeki her şeyin zıtların birliği ve mücadelesinden oluştuğunu savunan eseri hangisidir?", "cevaplar": ["Çelişki Üzerine", "Pratik Üzerine", "Liberalizmi Eleştir", "Doğru Tutum"], "dogru": "Çelişki Üzerine"},
     {"soru": "Maoizmde, emperyalist ülkelerin yerli işbirlikçisi olan ve devrimin baş hedeflerinden biri sayılan burjuvazi kesimine ne ad verilir?", "cevaplar": ["Komprador Burjuvazi", "Ulusal Burjuvazi", "Küçük Burjuvazi", "Bürokrat Burjuvazi"], "dogru": "Komprador Burjuvazi"},
@@ -99,12 +98,12 @@ soru_havuzu = [
     {"soru": "Sermayenin, makineler ve hammaddeler gibi sabit unsurları (değişmez sermaye) ile işgücü (değişken sermaye) arasındaki orana ne ad verilir?", "cevaplar": ["Sermayenin Organik Bileşimi", "Artı Değer Oranı", "Kar Oranı", "Sermaye Yoğunluğu"], "dogru": "Sermayenin Organik Bileşimi"},
     {"soru": "Kapitalistlerin rekabet nedeniyle sürekli yeni teknolojilere yatırım yapması sonucu uzun vadede ortaya çıkan kriz eğilimi nedir?", "cevaplar": ["Kar Oranlarının Azalma Eğilimi Yasası", "Eksik Tüketim Krizi", "Mali Çöküş Yasası", "Enflasyon Eğilimi"], "dogru": "Kar Oranlarının Azalma Eğilimi Yasası"},
     {"soru": "Kapitalist üretim tarzının tarihsel başlangıcında, üreticilerin mülksüzleştirilmesi ve servetin belirli ellerde toplanması sürecine ne ad verilir?", "cevaplar": ["İlkel Birikim (Sermayenin İlk Birikimi)", "Sermaye Merkezileşmesi", "Merkantilist Dönem", "Emperyalist Genişleme"], "dogru": "İlkel Birikim (Sermayenin İlk Birikimi)"},
-    {"soru": "Marksizmde, felsefe dünyayı yalnızca çeşitli biçimlerde yorumlamıştır, aslolan onu değiştirmektir fikrini özetleyen pratik felsefe kavramı nedir?", "cevaplar": ["Praksis", "Dogmatizm", "Skolastik Düşünce", "Pozitivizm"], "dogru": "Praksis"},
+    {"soru": "Locksley'de felsefe dünyayı yalnızca çeşitli biçimlerde yorumlamıştır, aslolan onu değiştirmektir fikrini özetleyen pratik felsefe kavramı nedir?", "cevaplar": ["Praksis", "Dogmatizm", "Skolastik Düşünce", "Pozitivizm"], "dogru": "Praksis"},
     {"soru": "Kapitalist üretim ilişkilerinin içinde doğup büyüdüğü ve üretim araçlarının özel mülkiyetine dayanan ekonomik temel yapı hangisidir?", "cevaplar": ["Altyapı", "Üstyapı", "İdeolojik Aygıt", "Kültürel Yapı"], "dogru": "Altyapı"},
-    {"soru": "Üretim araçlarına sahip olan ve işçi sınıfının emeğini sömüren kapitalist mülkiyet sahibi sınıfa ne ad verilir?", "cevaplar": ["Burjuvazi", "Proletarya", "Aristokrasi", "Rantiyeler"], "dogru": "Burjuvazi"},
+    {"soru": "Üretim araçlarına sahip olan ve işçi sınıfını sömüren kapitalist mülkiyet sahibi sınıfa ne ad verilir?", "cevaplar": ["Burjuvazi", "Proletarya", "Aristokrasi", "Rantiyeler"], "dogru": "Burjuvazi"},
     {"soru": "Geçimini sadece kendi işgücünü (emeğini) satarak sağlayan modern ücretli işçi sınıfına ne ad verilir?", "cevaplar": ["Proletarya", "Burjuvazi", "Köylülük", "Serf"], "dogru": "Proletarya"},
     {"soru": "İşçi sınıfı içinde yer alan ancak sınıf bilincinden yoksun, düzene kolayca alet olabilen güvencesiz ve dışlanmış kesimlere ne ad verilir?", "cevaplar": ["Lumpen Proletarya", "Aristokrat İşçiler", "Öncü İşçiler", "Küçük Burjuvazi"], "dogru": "Lumpen Proletarya"},
-    {"soru": "Maddi dünyanın insan düşüncesinden bağımsız olarak var olduğunu ve bilincin madde tarafından belirlendiğini savunan felsefi akım hangisidir?", "cevaplar": ["Materyalizm", "İdealizm", "Rasyonalizm", "Mistisizm"], "dogru": "Materyalizm"},
+    {"soru": "Maddi dünyanın insan düşüncesinden bağımsız olarak var olduğunu ve bilincin madde tarafından belirlendiğini savunan felsefi akım hangisidir?", "cevaplar": ["Materyalizm", "İidealizm", "Rasyonalizm", "Mistisizm"], "dogru": "Materyalizm"},
 
     # --- 81-100: Turnuvalar, Örgütler & Diğer Kuramcılar ---
     {"soru": "Antonio Gramsci'nin egemen sınıfın kültürel ve ideolojik hakimiyetini kurma biçimi olarak tanımladığı kavram nedir?", "cevaplar": ["Otorite", "Hegemonya", "Baskı", "Propaganda"], "dogru": "Hegemonya"},
@@ -114,7 +113,7 @@ soru_havuzu = [
     {"soru": "1871 yılında işçi sınıfının tarihte ilk kez siyasi iktidarı ele geçirerek kurduğu ve Marx'ın 'nihayet keşfedilen siyasi biçim' olarak övdüğü tarihsel deneyim hangisidir?", "cevaplar": ["Paris Komünü", "Ekim Devrimi", "Spartaküs Ayaklanması", "Fransız Devrimi"], "dogru": "Paris Komünü"},
     {"soru": "Lenin'in Marksist teoriye yaptığı en büyük katkılardan biri olan, emperyalist zincirin en zayıf halkasından kopacağı fikri hangi kavramla ifade edilir?", "cevaplar": ["En Zayıf Halka Teorisi", "Eşitsiz Gelişim Yasası", "Sürekli Devrim", "Tek Ülkede Sosyalizm"], "dogru": "En Zayıf Halka Teorisi"},
     {"soru": "1864 yılında Londra'da Karl Marx'ın da katılımıyla kurulan, tarihteki ilk uluslararası işçi örgütünün adı nedir?", "cevaplar": ["Birinci Enternasyonal", "İkinci Enternasyonal", "Komintern", "Kominform"], "dogru": "Birinci Enternasyonal"},
-    {"soru": "1919 yılında Lenin önderliğinde Moskova'da kurulan ve dünya devrimini hedefleyen Üçüncü Enternasyonal'in kısa adı nedir?", "cevaplar": ["Komintern", "Kominform", "Proletkult", "Glavlit"], "dogru": "Komintern"},
+    {"soru": "1919 yılında Lenin önderliğinde Moskova'da kurulan and dünya devrimini hedefleyen Üçüncü Enternasyonal'in kısa adı nedir?", "cevaplar": ["Komintern", "Kominform", "Proletkult", "Glavlit"], "dogru": "Komintern"},
     {"soru": "Almanya'da 1919 ayaklanmasında katledilen, 'Sermayenin Birikimi' kitabının yazarı ünlü Marksist kadın teorisyen kimdir?", "cevaplar": ["Rosa Luxemburg", "Clara Zetkin", "Nadejda Krupskaya", "Aleksandra Kollontay"], "dogru": "Rosa Luxemburg"},
     {"soru": "İtalyan faşizmi tarafından hapsedilen ve hapishanede yazdığı notlarla Marksist kültürel çalışmaları derinden etkileyen düşünür kimdir?", "cevaplar": ["Antonio Gramsci", "Amadeo Bordiga", "Palmiro Togliatti", "Louis Althusser"], "dogru": "Antonio Gramsci"},
     {"soru": "Fransız Marksist düşünür, devletin baskı aygıtlarının yanında okul, aile ve medya gibi unsurları 'Devletin İdeolojik Aygıtları' olarak tanımlayan kimdir?", "cevaplar": ["Louis Althusser", "Jean-Paul Sartre", "Michel Foucault", "Henri Lefebvre"], "dogru": "Louis Althusser"},
@@ -122,7 +121,7 @@ soru_havuzu = [
     {"soru": "Stalin'in asıl adı nedir?", "cevaplar": ["Lev Troçki", "İosif Cuğaşvili", "Nikolay Buharin", "Sergey Kirov"], "dogru": "İosif Cuğaşvili"},
     {"soru": "Stalin, gençliğinde hangi meslek için eğitim alıyordu?", "cevaplar": ["Demircilik", "Ruhbanlık", "Askerlik", "Terzilik"], "dogru": "Ruhbanlık"},
     {"soru": "Stalin'in gençlik yıllarında gizli devrimci faaliyetler yürütürken kullandığı ve Gürcü edebiyatından esinlenen ilk lakabı nedir?", "cevaplar": ["Koba", "Soso", "Kobaşvili", "Leninşvili"], "dogru": "Koba"},
-    {"soru": "Fransa'da 1848 devrimleri sonrasında işçi sınıfının burjuvaziye karşı ilk büyük bağımsız silahlı kalkışması olan tarihi ay hangisidir?", "cevaplar": ["Haziran Günleri", "Şubat İsyanı", "Temmuz Vakası", "Brumaire Darbesi"], "dogru": "Haziran Günleri"},
+    {"soru": "Fransa'da 1848 devrimleri sonrasında işçi sınıfının burjuvaziye karşı ilk bağımsız silahlı kalkışması olan tarihi ay hangisidir?", "cevaplar": ["Haziran Günleri", "Şubat İsyanı", "Temmuz Vakası", "Brumaire Darbesi"], "dogru": "Haziran Günleri"},
     {"soru": "1889'da kurulan, 1 Mayıs'ı işçi sınıfının uluslararası birlik ve mücadele günü ilan eden örgüt hangisidir?", "cevaplar": ["İkinci Enternasyonal", "Birinci Enternasyonal", "Komintern", "Kızıl Sendika Enternasyonal"], "dogru": "İkinci Enternasyonal"},
     {"soru": "Lenin'in, kapitalizmin serbest rekabetçi dönemden tekelci döneme geçişini emperyalizm olarak adlandırdığı ünlü eseri hangisidir?", "cevaplar": ["Emperyalizm, Kapitalizmin En Yüksek Aşaması", "Devlet ve Devrim", "Gelişen Kapitalizm", "Finans Sermayesi"], "dogru": "Emperyalizm, Kapitalizmin En Yüksek Aşaması"},
     {"soru": "Bolşevik hükümetinde Kadın Sorunlarından Sorumlu olan ve tarihteki ilk kadın büyükelçilerden biri olan devrimci kimdir?", "cevaplar": ["Aleksandra Kollontay", "Clara Zetkin", "Rosa Luxemburg", "Inessa Armand"], "dogru": "Aleksandra Kollontay"},
@@ -133,7 +132,8 @@ soru_havuzu = [
 if 'puan' not in st.session_state: 
     st.session_state.update({'puan': 0, 'soru_index': 0, 'oyun_basladi': False, 'isim': '', 'start_time': 0, 'skor_kaydedildi': False, 'secilen_sorular': []})
 
-st.title("☭ MLM Tarihi Yarışması")
+# Yenilenen Başlık
+st.title("☭ MLM Devrim Tarihi Yarışması")
 
 # 1. GİRİŞ EKRANI
 if not st.session_state.oyun_basladi:
@@ -144,10 +144,7 @@ if not st.session_state.oyun_basladi:
             st.session_state.oyun_basladi = True
             st.session_state.start_time = time.time()
             st.session_state.skor_kaydedildi = False
-            
-            # 100 Soru içerisinden her oyunda tamamen RASTGELE 15 soru çeker
             st.session_state.secilen_sorular = random.sample(soru_havuzu, 15)
-            
             st.rerun()
         else: st.warning("Lütfen bir isim gir yoldaş!")
     
@@ -175,25 +172,33 @@ else:
         
         if kalan_sure > 0:
             st.metric("⏱️ Kalan Süre", f"{kalan_sure} sn")
+            
+            mesaj_alani = st.empty()
+            
             for secenek in q['cevaplar']:
                 if st.button(secenek, key=f"btn_{secenek}_{st.session_state.soru_index}"):
                     if secenek == q['dogru']:
                         taban_puan = 10
                         if gecen_sure < 6:
                             taban_puan += 5
-                            st.success("⚡ Müthiş Hız Yoldaş! 15 Puan (10 Doğru + 5 Hız Bonusu)")
-                        else: st.success("✅ Bravo Yoldaş! 10 Puan")
+                            # Özelleştirilmiş Doğru Cevap Metni
+                            mesaj_alani.success("⚡ Müthiş Hız! Bravo Yoldaş (+5 Hız Bonusu)")
+                        else: 
+                            mesaj_alani.success("✅ Bravo Yoldaş")
                         st.session_state.puan += taban_puan
-                    else: st.error(f"❌ Yanlış Cevap Yoldaş! Doğrusu: {q['dogru']}")
+                    else: 
+                        # Özelleştirilmiş Yanlış Cevap Metni
+                        mesaj_alani.error(f"❌ Yanlış cevap yoldaş doğrusu: {q['dogru']}")
                     
                     time.sleep(1.5)
+                    mesaj_alani.empty()
                     st.session_state.soru_index += 1
                     st.session_state.start_time = time.time()
                     st.rerun()
             time.sleep(0.1)
             st.rerun()
         else:
-            st.error("⏳ Süre doldu yoldaş!")
+            st.error("⏳ Süre doldu!")
             time.sleep(1.5)
             st.session_state.soru_index += 1
             st.session_state.start_time = time.time()
@@ -201,7 +206,8 @@ else:
 
     # 3. OYUN BİTTİ EKRANI
     else:
-        st.subheader(f"🎉 Oyun bitti, tebrikler {st.session_state.isim}!")
+        # Özelleştirilmiş Kapanış Mesajı
+        st.subheader(f"🎉 oyun bitti yoldaş, devrimci kal {st.session_state.isim}!")
         st.write(f"**Toplam Skorun:** {st.session_state.puan}")
         
         if not st.session_state.skor_kaydedildi:
