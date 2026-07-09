@@ -1,14 +1,15 @@
 import streamlit as st
 import time
-from streamlit_gsheets import GSheetsConnection
-import pandas as pd
 
-st.set_page_config(page_title="Sosyalist Teori ve Devrim Tarihi Yarışması", layout="centered")
+st.set_page_config(page_title="MLM Tarihi Yarışması", layout="centered")
 
-# Google Sheets Bağlantısı
-conn = st.connection("gsheets", type=GSheetsConnection)
+# Streamlit'in kendi yerleşik bulut veritabanına bağlanıyoruz
+try:
+    conn = st.connection("kv", type="st_kv_connection.KVConnection")
+except:
+    conn = None
 
-# 15 Yeni Kavramsal ve Tarihsel Soru Paketi
+# 15 Kavramsal ve Tarihsel Soru Paketi
 sorular = [
     {"soru": "1917 Ekim Devrimi sırasında 'Bütün İktidar Sovyetlere!' sloganıyla öne çıkan ve devrimin yol haritası kabul edilen Lenin'in ünlü metni hangisidir?", "cevaplar": ["Nisan Tezleri", "Devlet ve Devrim", "Ne Yapmalı?", "Sol Komünizm"], "dogru": "Nisan Tezleri"},
     {"soru": "Çin Devrimi'nin stratejik temelini oluşturan, kırlardan şehirlere doğru ilerleyen devrimci savaş stratejisine ne ad verilir?", "cevaplar": ["Topyekün Savaş", "Halk Savaşı", "Gerilla Doktrini", "Kızıl Harekat"], "dogru": "Halk Savaşı"},
@@ -16,7 +17,7 @@ sorular = [
     {"soru": "Ekim Devrimi'nin hemen ardından, devrimi ve Sovyet iktidarını korumak amacıyla kurulan gizli siyasi polis teşkilatı hangisidir?", "cevaplar": ["KGB", "Çeka", "NKVD", "Gruman"], "dogru": "Çeka"},
     {"soru": "Mao Zedong'un, sosyalist inşa sürecinde toplumdaki çelişkilerin barışçıl ve tartışma yoluyla çözülmesi gerektiğini savunduğu ünlü kampanyasının adı nedir?", "cevaplar": ["Yüz Çiçek Açsın", "Büyük İleri Atılım", "Kültür Devrimi", "Kızıl Bayrak"], "dogru": "Yüz Çiçek Açsın"},
     {"soru": "Marksizm-Leninizm'de, partinin kararlar alınırken tam bir tartışma özgürlüğü, karar alındıktan sonra ise tam bir eylem birliği içinde hareket etmesini öngören ilke nedir?", "cevaplar": ["Bürokratizm", "Demokratik Merkeziyetçilik", "Fraksiyonizm", "Kolektif Önderlik"], "dogru": "Demokratik Merkeziyetçilik"},
-    {"soru": "Çin Devrimi sürecinde, sanayileşmiş bir işçi sınıfının azınlıkta olması nedeniyle Mao'nun devrimin temel gücü olarak konumlandırdığı sınıf hangisidir?", "cevaplar": ["Köylülük", "Komprador Burjuvazi", "Küçük Burjuvazi", "Lumpen Proletarya"], "dogru": "Köylülük"},
+    {"soru": "Çin Devrimi süreçinde, sanayileşmiş bir işçi sınıfının azınlıkta olması nedeniyle Mao'nun devrimin temel gücü olarak konumlandırdığı sınıf hangisidir?", "cevaplar": ["Köylülük", "Komprador Burjuvazi", "Küçük Burjuvazi", "Lumpen Proletarya"], "dogru": "Köylülük"},
     {"soru": "Ekim Devrimi'ni fiilen organize eden, Askeri Devrimci Komite'nin başında yer alan ve Kızıl Ordu'nun kurucusu olan lider kimdir?", "cevaplar": ["Stalin", "Troçki", "Buharin", "Kamenev"], "dogru": "Troçki"},
     {"soru": "Maoizmde, bir toplumdaki temel çelişkinin yanı sıra, o anki tarihsel aşamada devrimin önündeki en büyük engeli oluşturan çelişki türüne ne ad verilir?", "cevaplar": ["Baş Çelişki", "Antagonistik Çelişki", "İkincil Çelişki", "İç Çelişki"], "dogru": "Baş Çelişki"},
     {"soru": "Ekim Devrimi öncesinde, Temmuz Günleri'nin ardından Lenin'in saklandığı kulübede yazdığı, devletin sönümlenmesi teorisini ele alan başyapıtı hangisidir?", "cevaplar": ["Emperyalizm", "Devlet ve Devrim", "Ne Yapmalı?", "Marx Üzerine"], "dogru": "Devlet ve Devrim"},
@@ -46,13 +47,16 @@ if not st.session_state.oyun_basladi:
     
     st.subheader("🏅 En Yüksek Skorlar (Canlı)")
     try:
-        df = conn.read(ttl="5s")
-        if not df.empty:
-            df['Puan'] = pd.to_numeric(df['Puan'])
-            sirali_df = df.sort_values(by="Puan", ascending=False)
-            for index, row in sirali_df.head(5).iterrows():
-                st.write(f"🌟 {row['İsim']} — {int(row['Puan'])} Puan")
-        else: st.write("Henüz skor yok!")
+        # Buluttan skorları çek ve sırala
+        if conn:
+            skorlar_dict = conn.get_all()
+            if skorlar_dict:
+                # Skorları integer'a çevirip yüksekten düşüğe sıralama
+                sirali_skorlar = sorted(skorlar_dict.items(), key=lambda x: int(x[1]), reverse=True)
+                for k, v in sirali_skorlar[:5]:
+                    st.write(f"🌟 {k} — {v} Puan")
+            else: st.write("Henüz skor yok!")
+        else: st.write("Veritabanı bağlantısı kurulamadı.")
     except: 
         st.write("Skor tablosu yükleniyor...")
 
@@ -62,7 +66,6 @@ else:
         q = sorular[st.session_state.soru_index]
         st.subheader(f"Soru {st.session_state.soru_index + 1}: {q['soru']}")
         
-        # 30 Saniyeden Geriye Sayım
         gecen_sure = time.time() - st.session_state.start_time
         kalan_sure = 30 - int(gecen_sure)
         
@@ -72,7 +75,6 @@ else:
                 if st.button(secenek, key=f"btn_{secenek}_{st.session_state.soru_index}"):
                     if secenek == q['dogru']:
                         taban_puan = 10
-                        # Hız bonusu süresini de 3 saniyeden 6 saniyeye çıkardım (Süre uzadığı için adil olsun diye)
                         if gecen_sure < 6:
                             taban_puan += 5
                             st.success("⚡ Müthiş Hız! 15 Puan (10 Doğru + 5 Hız Bonusu)")
@@ -101,17 +103,20 @@ else:
         if not st.session_state.skor_kaydedildi:
             if st.button("🏆 Skorumu Liderlik Tablosuna Kaydet", key="btn_skor_kaydet"):
                 try:
-                    df = conn.read(ttl="0s")
-                    new_row = pd.DataFrame([{"İsim": st.session_state.isim, "Puan": st.session_state.puan}])
-                    updated_df = pd.concat([df, new_row], ignore_index=True)
-                    conn.update(data=updated_df)
-                    
-                    st.session_state.skor_kaydedildi = True
-                    st.success("Skorun başarıyla Google Sheets'e kaydedildi!")
-                    st.balloons()
-                    time.sleep(1)
-                    st.rerun()
-                except:
+                    if conn:
+                        # Eğer aynı isim daha önce kayıtlıysa ve yeni skoru eskisinden yüksekse güncelle
+                        mevcut_en_iyi = conn.get(st.session_state.isim)
+                        if mevcut_en_iyi is None or st.session_state.puan > int(mevcut_en_iyi):
+                            conn.set(st.session_state.isim, str(st.session_state.puan))
+                        
+                        st.session_state.skor_kaydedildi = True
+                        st.success("Skorun başarıyla bulut liderlik tablosuna kaydedildi!")
+                        st.balloons()
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error("Veritabanı bağlantı hatası.")
+                except Exception as e:
                     st.error("Kayıt sırasında bir hata oluştu.")
         else: st.info("Skorun zaten kaydedildi yoldaş!")
 
